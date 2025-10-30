@@ -13,8 +13,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.levelupmobile.ui.screens.Login
 import com.example.levelupmobile.ui.screens.LoginScreen
+import com.example.levelupmobile.ui.screens.RegisterScreen
 import com.example.levelupmobile.ui.theme.LevelUpMobileTheme
 
 class MainActivity : ComponentActivity() {
@@ -23,11 +27,36 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             LevelUpMobileTheme {
-                Surface (
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+
+                // se crea el NavController
+                val navController = rememberNavController()
+
+                // se crea el NavHost
+                NavHost(
+                    navController = navController,
+                    startDestination = "login" // pantalla inicial
                 ) {
-                    LoginScreen()
+
+                    // primera ruta: "login"
+                    composable(route = "login") {
+                        LoginScreen(
+                            // aquí se conecta con la pantalla de registro
+                            onGoToRegister = {
+                                navController.navigate("register")
+                            }
+                        )
+                    }
+                    // segunda ruta: "register"
+                    composable(route = "register") {
+                        RegisterScreen(
+                            // aquí se conecta con la pantalla de login
+                            onLoginClicked = {
+                                navController.navigate("login")
+                            }
+                        )
+                    }
+                    // --- Aquí añadirás tus otras rutas más adelante ---
+                    // composable(route = "catalog") { /* CatalogScreen() */ }
                 }
             }
         }

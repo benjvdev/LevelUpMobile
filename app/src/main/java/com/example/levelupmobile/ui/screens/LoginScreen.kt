@@ -19,6 +19,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -35,6 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.levelupmobile.R
@@ -47,7 +49,8 @@ import com.example.levelupmobile.model.LoginUiState
 
 @Composable
 fun LoginScreen(
-    viewModel: LoginViewModel = viewModel()
+    viewModel: LoginViewModel = viewModel(),
+    onGoToRegister: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     Box(Modifier.fillMaxSize().padding(16.dp)){
@@ -57,7 +60,8 @@ fun LoginScreen(
             onEmailChange = viewModel::onEmailChanged,
             onPasswordChange = viewModel::onPasswordChanged,
             onLoginClick = viewModel::onLoginClicked,
-            onForgotClick = { TODO() }
+            onForgotClick = { TODO() },
+            onGoToRegister = onGoToRegister
             )
     }
 }
@@ -69,8 +73,9 @@ fun Login(
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onLoginClick: () -> Unit,
-    onForgotClick: () -> Unit
-          ) {
+    onForgotClick: () -> Unit,
+    onGoToRegister: () -> Unit
+) {
     Column(modifier = modifier) {
         HeaderImage(Modifier.align(Alignment.CenterHorizontally))
         Spacer(modifier = Modifier.padding(16.dp))
@@ -81,9 +86,24 @@ fun Login(
         ForgotPassword(Modifier.align(Alignment.CenterHorizontally),onClick = onForgotClick)
         Spacer(modifier = Modifier.padding(16.dp))
         LoginButton(isLoading = uiState.isLoading,onClick = onLoginClick)
+        Spacer(modifier = Modifier.padding(16.dp))
+        GoToRegister(
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            onClick = onGoToRegister
+        )
     }
 }
 
+@Composable
+fun GoToRegister(modifier: Modifier, onClick: () -> Unit) {
+    Text(
+        text = "¿Aún no tienes cuenta? Regístrate aquí",
+        modifier = modifier.clickable(onClick = onClick),
+        fontSize = 12.sp,
+        fontWeight = FontWeight.Bold,
+        color = Color(0xFF50AACE)
+    )
+}
 @Composable
 fun LoginButton(
     isLoading: Boolean,
@@ -109,7 +129,7 @@ fun LoginButton(
 
 @Composable
 fun ForgotPassword(modifier: Modifier,onClick: () -> Unit) {
-    Text(text = "Olvidaste tu contraseña?",
+    Text(text = "¿Olvidaste tu contraseña?",
         modifier = modifier.clickable(onClick = onClick),
         fontSize = 12.sp,
         fontWeight = FontWeight.Bold,
@@ -158,7 +178,8 @@ fun PasswordField(
 @Composable
 fun EmailField(
     email: String,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit,
+    error: String? = null
     ) {
 
     TextField(
@@ -172,7 +193,18 @@ fun EmailField(
         colors = TextFieldDefaults.colors(
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent
-        )
+        ),
+        isError = (error != null),
+        supportingText = {
+            if (error != null) {
+                Text(
+                    text = error,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Start
+                )
+            }
+        }
     )
 }
 
