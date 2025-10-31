@@ -1,16 +1,28 @@
 package com.example.levelupmobile.viewmodel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.levelupmobile.model.RegisterUiState
+import com.example.levelupmobile.repository.AppDatabase
+import com.example.levelupmobile.repository.AuthRepository
+import com.example.levelupmobile.repository.AuthRepositoryImpl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import com.example.levelupmobile.utils.Result
 
-class RegisterViewModel: ViewModel() {
+class RegisterViewModel(application: Application): AndroidViewModel(application) {
+    private val repository: AuthRepository
     private val _uiState = MutableStateFlow(RegisterUiState())
     val uiState: StateFlow<RegisterUiState> = _uiState.asStateFlow()
 
+    init {
+        val dao = AppDatabase.getInstance(application).userDao()
+        repository = AuthRepositoryImpl(dao)
+    }
     fun onFirstNameChanged(firstName: String) {
         _uiState.update { it.copy(firstName = firstName) }
     }
@@ -45,20 +57,27 @@ class RegisterViewModel: ViewModel() {
             confirmPassError = null,
             registerError = null
         )}
-        if (validateFields()) {
-            // 3. Si es válida, procedemos con la lógica de registro
-            // viewModelScope.launch {
-            //     _uiState.update { it.copy(isLoading = true) }
-            //     // ... llamar al repositorio ...
-            // }
+        if (!validateFields()) {
+            return
         }
-        // Si no es válida, la función validateFields() ya habrá actualizado
-        // el _uiState con los mensajes de error.
+        _uiState.update { it.copy(isLoading = true) }
+
+        viewModelScope.launch {
+            val result = repository.registerUser(_uiState.value)
+            when (result) {
+                is Result.Success -> {
+                    _uiState.update { it.copy(isLoading = false, registerError = null) }
+                    // TODO: Navegar
+                }
+                is Result.Error -> {
+                    _uiState.update { it.copy(
+                        isLoading = false,
+                        registerError = result.exception.message
+                    )}
+                }
+            }
+        }
     }
-    /**
-     * Valida los campos del estado actual y actualiza el uiState con errores si los hay.
-     * @return 'true' si todos los campos son válidos, 'false' si hay al menos un error.
-     */
     private fun validateFields(): Boolean {
         val state = _uiState.value
         var isValid = true
@@ -77,7 +96,7 @@ class RegisterViewModel: ViewModel() {
             _uiState.update { it.copy(emailError = "El email es obligatorio") }
             isValid = false
         }
-        // (Aquí podrías añadir una validación de formato de email con Regex)
+        // añadir una validación de formato de email con regex
 
         if (state.pass.length < 6) {
             _uiState.update { it.copy(passError = "Mínimo 6 caracteres") }
