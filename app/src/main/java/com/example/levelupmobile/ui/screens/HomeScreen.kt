@@ -18,14 +18,38 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
+import com.example.levelupmobile.model.Product
+import com.example.levelupmobile.viewmodel.HomeViewModel
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.runtime.getValue
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.text.style.TextOverflow
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    viewModel: HomeViewModel = viewModel(),
+    onNavigateToSearch: () -> Unit
+) {
+    val products by viewModel.products.collectAsStateWithLifecycle() //lista de productos
+
     Scaffold(
         topBar = {
             HomeTopBar(
@@ -37,13 +61,60 @@ fun HomeScreen() {
             HomeBottomBar()
         }
     ) { paddingValues ->
-        Box(
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
-            contentAlignment = Alignment.Center
+            contentPadding = PaddingValues(16.dp),
+
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(text = "Contenido de Home (aquí irá el catálogo)")
+            items(products) { product ->
+                ProductCard(product = product)
+            }
+        }
+    }
+}
+@Composable
+fun ProductCard(product: Product) {
+    Card(
+        modifier = Modifier,
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        shape = RectangleShape,
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        )
+    ) {
+        Column {
+            AsyncImage(
+                model = product.image,
+                contentDescription = product.name,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1f),
+                contentScale = ContentScale.Fit
+            )
+            Column(
+                modifier = Modifier.padding(16.dp)
+                .height(IntrinsicSize.Min)
+            ) {
+                Text(
+                    text = product.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    text = product.price,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
         }
     }
 }
@@ -54,7 +125,6 @@ fun HomeTopBar(
     onSearchClick: () -> Unit
 ) {
     TopAppBar(
-        // 2. Colores
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = Color(0xFF008AC2),
             titleContentColor = Color.White,
@@ -108,9 +178,9 @@ private fun FakeSearchBar(
 }
 @Composable
 fun HomeBottomBar(
-    // (Luego aquí añadiremos el NavController para la navegación real)
+    //aquí falta el NavController para navegar
 ) {
-    // 1. Lista de nuestros items de navegación
+    // lista de los items de navegación
     val items = listOf(
         BottomNavItem("Home", "home", Icons.Default.Home),
         BottomNavItem("Buscar", "search", Icons.Default.Search),
@@ -118,31 +188,29 @@ fun HomeBottomBar(
         BottomNavItem("Perfil", "profile", Icons.Default.Person)
     )
 
-    // 2. Estado para saber cuál item está seleccionado (visual)
-    // Usamos rememberSaveable para que sobreviva a rotaciones
+    // estado para saber cuál item está seleccionado
+    // rememberSaveable para que sobreviva a rotaciones
     var selectedRoute by rememberSaveable { mutableStateOf("home") }
 
-    // 3. La barra de navegación
+    // barra de navegación
     NavigationBar {
-        // 4. Iteramos sobre cada item
+        // iteración sobre cada item
         items.forEach { item ->
             NavigationBarItem(
-                // 5. Estado de selección
+                //estado de selección
                 selected = (selectedRoute == item.route),
 
-                // 6. Acción (por ahora solo cambia el estado visual)
+                //por ahora solo cambia el estado visual
                 onClick = {
                     selectedRoute = item.route
                     // TODO: Aquí irá la navegación: navController.navigate(item.route)
                 },
-                // 7. El ícono
                 icon = {
                     Icon(
                         imageVector = item.icon,
                         contentDescription = item.label
                     )
                 },
-                // 8. El texto debajo del ícono
                 label = { Text(item.label) }
             )
         }

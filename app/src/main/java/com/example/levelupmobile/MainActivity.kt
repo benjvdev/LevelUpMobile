@@ -68,10 +68,8 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable(route = "home") {
-                        HomeScreen()
+                        HomeScreen(onNavigateToSearch = {})
                     }
-                    // --- Aquí añadirás tus otras rutas más adelante ---
-                    // composable(route = "catalog") { /* CatalogScreen() */ }
                 }
             }
         }
