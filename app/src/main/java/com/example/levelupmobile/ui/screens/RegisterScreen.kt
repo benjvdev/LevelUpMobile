@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -31,10 +32,16 @@ import com.example.levelupmobile.viewmodel.RegisterViewModel
 @Composable
 fun RegisterScreen(
     viewModel: RegisterViewModel = viewModel(),
-    onLoginClicked: () -> Unit
+    onLoginClicked: () -> Unit,
+    onRegisterSuccess: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(key1 = Unit) {
+        viewModel.navigateToLogin.collect {
+            onRegisterSuccess()
+        }
+    }
     Box(Modifier.fillMaxSize().padding(16.dp)) {
         Register(
             modifier = Modifier.align(Alignment.Center),

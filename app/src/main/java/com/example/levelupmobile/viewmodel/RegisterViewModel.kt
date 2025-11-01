@@ -13,11 +13,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.example.levelupmobile.utils.Result
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import android.util.Patterns
 
 class RegisterViewModel(application: Application): AndroidViewModel(application) {
     private val repository: AuthRepository
     private val _uiState = MutableStateFlow(RegisterUiState())
     val uiState: StateFlow<RegisterUiState> = _uiState.asStateFlow()
+    private val _navigateToLogin = MutableSharedFlow<Boolean>()
+    val navigateToLogin = _navigateToLogin.asSharedFlow()
 
     init {
         val dao = AppDatabase.getInstance(application).userDao()
@@ -67,12 +72,12 @@ class RegisterViewModel(application: Application): AndroidViewModel(application)
             when (result) {
                 is Result.Success -> {
                     _uiState.update { it.copy(isLoading = false, registerError = null) }
-                    // TODO: Navegar
+                    _navigateToLogin.emit(true)
                 }
                 is Result.Error -> {
                     _uiState.update { it.copy(
                         isLoading = false,
-                        registerError = result.exception.message
+                        emailError = result.exception.message
                     )}
                 }
             }
@@ -95,8 +100,10 @@ class RegisterViewModel(application: Application): AndroidViewModel(application)
         if (state.email.isBlank()) {
             _uiState.update { it.copy(emailError = "El email es obligatorio") }
             isValid = false
+        } else if (!Patterns.EMAIL_ADDRESS.matcher(state.email).matches()) {
+            _uiState.update { it.copy(emailError = "El formato del email no es válido") }
+            isValid = false
         }
-        // añadir una validación de formato de email con regex
 
         if (state.pass.length < 6) {
             _uiState.update { it.copy(passError = "Mínimo 6 caracteres") }

@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,9 +51,16 @@ import com.example.levelupmobile.model.LoginUiState
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel = viewModel(),
-    onGoToRegister: () -> Unit
+    onGoToRegister: () -> Unit,
+    onLoginSuccess: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(key1 = Unit) {
+        viewModel.navigateToHome.collect {
+            onLoginSuccess()
+        }
+    }
     Box(Modifier.fillMaxSize().padding(16.dp)){
         Login(
             modifier = Modifier.align(Alignment.Center),
@@ -79,13 +87,24 @@ fun Login(
     Column(modifier = modifier) {
         HeaderImage(Modifier.align(Alignment.CenterHorizontally))
         Spacer(modifier = Modifier.padding(16.dp))
-        EmailField(email = uiState.email,onValueChange = onEmailChange)
+        EmailField(email = uiState.email,onValueChange = onEmailChange, error = null)
         Spacer(modifier = Modifier.padding(4.dp))
-        PasswordField(password = uiState.pass,onValueChange = onPasswordChange)
+        PasswordField(password = uiState.pass,onValueChange = onPasswordChange, error = null)
         Spacer(modifier = Modifier.padding(8.dp))
         ForgotPassword(Modifier.align(Alignment.CenterHorizontally),onClick = onForgotClick)
         Spacer(modifier = Modifier.padding(16.dp))
         LoginButton(isLoading = uiState.isLoading,onClick = onLoginClick)
+
+        if (uiState.loginError != null) {
+            Spacer(modifier = Modifier.padding(8.dp))
+            Text(
+                text = uiState.loginError,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
+        }
+
         Spacer(modifier = Modifier.padding(16.dp))
         GoToRegister(
             modifier = Modifier.align(Alignment.CenterHorizontally),
