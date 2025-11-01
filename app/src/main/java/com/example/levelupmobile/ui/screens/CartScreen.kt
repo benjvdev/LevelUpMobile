@@ -21,6 +21,8 @@ import coil.compose.AsyncImage
 import com.example.levelupmobile.model.CartItem
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.ui.text.style.TextAlign
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CartScreen(
@@ -48,24 +50,40 @@ fun CartScreen(
             )
         }
     ) { paddingValues ->
-        LazyColumn(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(cartItems) { item ->
-                CartItemRow(
-                    item = item,
-                    onDelete = { viewModel.deleteItem(item) },
-                    onQuantityChange = { newQty ->
-                        viewModel.onQuantityChanged(item, newQty)
-                    }
-                )
-            }
+                .padding(paddingValues)
 
-            // aqui falta el total y el botón de pagar
+        ){
+            if (cartItems.isEmpty()){
+                Text(
+                    text = "Tu carrito está vacío :(",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.Gray,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .align(Alignment.Center)
+                )
+            }else{
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ){
+                    items(cartItems) { item ->
+                        CartItemRow(
+                            item = item,
+                            onDelete = { viewModel.deleteItem(item) },
+                            onQuantityChange = { newQty ->
+                                viewModel.onQuantityChanged(item, newQty)
+                            }
+                        )
+                    }
+                }
+            }
         }
     }
 }
