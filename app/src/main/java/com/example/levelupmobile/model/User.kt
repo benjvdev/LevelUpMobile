@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 
 // para que Room no permita dos usuarios con el mismo email.
 @Entity(tableName = "users", indices = [Index(value = ["email"], unique = true)])
-data class UserEntity(
+data class User(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val firstName: String,

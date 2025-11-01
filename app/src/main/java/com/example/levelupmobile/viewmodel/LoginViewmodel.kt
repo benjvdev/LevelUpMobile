@@ -2,7 +2,6 @@ package com.example.levelupmobile.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.levelupmobile.model.LoginUiState
 import com.example.levelupmobile.repository.AppDatabase

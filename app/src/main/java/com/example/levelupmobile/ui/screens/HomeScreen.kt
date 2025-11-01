@@ -7,7 +7,6 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -15,8 +14,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -42,11 +39,20 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.filled.AddShoppingCart
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.ui.Alignment
+import androidx.navigation.NavController
 
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = viewModel(),
-    onNavigateToSearch: () -> Unit
+    onNavigateToSearch: () -> Unit,
+    navController: NavController,
+    currentRoute: String?
 ) {
     val products by viewModel.products.collectAsStateWithLifecycle() //lista de productos
 
@@ -58,7 +64,10 @@ fun HomeScreen(
             )
         },
         bottomBar = {
-            HomeBottomBar()
+            HomeBottomBar(
+                navController = navController,
+                currentRoute = currentRoute
+            )
         }
     ) { paddingValues ->
         LazyVerticalGrid(
@@ -69,52 +78,76 @@ fun HomeScreen(
                 .padding(paddingValues),
             contentPadding = PaddingValues(16.dp),
 
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             items(products) { product ->
-                ProductCard(product = product)
+                ProductCard(
+                    product = product,
+                    onAddToCartClick = { viewModel.onAddToCartClicked(product) }
+                )
             }
         }
     }
 }
 @Composable
-fun ProductCard(product: Product) {
-    Card(
-        modifier = Modifier,
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        shape = RectangleShape,
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        )
-    ) {
-        Column {
-            AsyncImage(
-                model = product.image,
-                contentDescription = product.name,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1f),
-                contentScale = ContentScale.Fit
+fun ProductCard(
+    product: Product,
+    onAddToCartClick: () -> Unit
+) {
+    Box {
+        Card(
+            modifier = Modifier,
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+            shape = RectangleShape,
+            colors = CardDefaults.cardColors(
+                containerColor = Color.White
             )
-            Column(
-                modifier = Modifier.padding(16.dp)
-                .height(IntrinsicSize.Min)
-            ) {
-                Text(
-                    text = product.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
+        ) {
+            Column {
+                AsyncImage(
+                    model = product.image,
+                    contentDescription = product.name,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(1f),
+                    contentScale = ContentScale.Fit
                 )
-                Text(
-                    text = product.price,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                        .height(IntrinsicSize.Min)
+                ) {
+                    Text(
+                        text = product.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text(
+                        text = product.price,
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
             }
+        }
+        FloatingActionButton(
+            onClick = onAddToCartClick,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(8.dp)
+                .size(36.dp),
+            shape = CircleShape,
+            containerColor = Color(0xFF008AC2),
+            contentColor = Color.White
+        ) {
+            Icon(
+                imageVector = Icons.Default.AddShoppingCart,
+                contentDescription = "Añadir al carrito",
+                modifier = Modifier.size(20.dp)
+            )
         }
     }
 }
@@ -178,7 +211,8 @@ private fun FakeSearchBar(
 }
 @Composable
 fun HomeBottomBar(
-    //aquí falta el NavController para navegar
+    navController: NavController,
+    currentRoute: String?
 ) {
     // lista de los items de navegación
     val items = listOf(
@@ -188,22 +222,22 @@ fun HomeBottomBar(
         BottomNavItem("Perfil", "profile", Icons.Default.Person)
     )
 
-    // estado para saber cuál item está seleccionado
-    // rememberSaveable para que sobreviva a rotaciones
-    var selectedRoute by rememberSaveable { mutableStateOf("home") }
-
     // barra de navegación
     NavigationBar {
-        // iteración sobre cada item
+
         items.forEach { item ->
             NavigationBarItem(
                 //estado de selección
-                selected = (selectedRoute == item.route),
-
-                //por ahora solo cambia el estado visual
+                selected = (currentRoute == item.route),
                 onClick = {
-                    selectedRoute = item.route
-                    // TODO: Aquí irá la navegación: navController.navigate(item.route)
+                    navController.navigate(item.route) {
+                        //para no apilar repetidos
+                        launchSingleTop = true
+                        restoreState = true
+                        popUpTo(navController.graph.startDestinationId) {
+                            saveState = true
+                        }
+                    }
                 },
                 icon = {
                     Icon(
