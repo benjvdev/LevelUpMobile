@@ -15,7 +15,9 @@ import com.example.levelupmobile.ui.theme.LevelUpMobileTheme
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.levelupmobile.session.SessionManager
 import com.example.levelupmobile.ui.screens.CartScreen
+import com.example.levelupmobile.ui.screens.ForgotPasswordScreen
 import com.example.levelupmobile.ui.screens.ProfileScreen
+import com.example.levelupmobile.ui.screens.SearchScreen
 
 class MainActivity : ComponentActivity() {
     private lateinit var sessionManager: SessionManager
@@ -61,6 +63,9 @@ class MainActivity : ComponentActivity() {
                                 navController.navigate("home") {
                                     popUpTo("login") { inclusive = true }
                                 }
+                            },
+                            onForgotClick = {
+                                navController.navigate("forgot_password")
                             }
                         )
                     }
@@ -109,7 +114,20 @@ class MainActivity : ComponentActivity() {
                             currentRoute = currentRoute
                         )
                     }
-
+                    composable(route = "forgot_password") {
+                        ForgotPasswordScreen(
+                            onNavigateBack = {
+                                navController.popBackStack()
+                            }
+                        )
+                    }
+                    composable(route = "search") {
+                        SearchScreen(
+                            onNavigateBack = {
+                                navController.popBackStack()
+                            }
+                        )
+                    }
                 }
             }
         }

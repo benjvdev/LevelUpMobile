@@ -59,8 +59,8 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             HomeTopBar(
-                onMenuClick = { /* TODO: Abrir Drawer */ },
-                onSearchClick = { /* TODO: Navegar a pantalla de búsqueda */ }
+                onMenuClick = {},
+                onSearchClick = onNavigateToSearch
             )
         },
         bottomBar = {

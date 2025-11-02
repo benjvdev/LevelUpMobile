@@ -52,7 +52,8 @@ import com.example.levelupmobile.model.LoginUiState
 fun LoginScreen(
     viewModel: LoginViewModel = viewModel(),
     onGoToRegister: () -> Unit,
-    onLoginSuccess: () -> Unit
+    onLoginSuccess: () -> Unit,
+    onForgotClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -68,7 +69,7 @@ fun LoginScreen(
             onEmailChange = viewModel::onEmailChanged,
             onPasswordChange = viewModel::onPasswordChanged,
             onLoginClick = viewModel::onLoginClicked,
-            onForgotClick = { TODO() },
+            onForgotClick = onForgotClick,
             onGoToRegister = onGoToRegister
             )
     }

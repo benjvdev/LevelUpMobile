@@ -15,12 +15,12 @@ class ProductRepository(private val context: Context) {
     suspend fun getProducts(): List<Product> {
         return withContext(Dispatchers.IO) {
             try {
-                //Abre y lee el archivo JSON de los assets
+                //leer el archivo JSON de los assets
                 val jsonString = context.assets.open("products.json")
                     .bufferedReader()
                     .use { it.readText() }
 
-                //define el tipo de lista (para que Gson sepa que es una LISTA de Product)
+                //define el tipo de lista (para que Gson sepa que es una lista de Product)
                 val listType = object : TypeToken<List<Product>>() {}.type
 
                 //usa gson para convertir el string JSON en la lista de objetos
@@ -28,7 +28,7 @@ class ProductRepository(private val context: Context) {
 
             } catch (e: Exception) {
                 Log.e("ProductRepository", "Error al leer products.json", e)
-                emptyList() // devuelve una lista vacia en caso de falla
+                emptyList() // devuelve una lista vacia en caso de fallar
             }
         }
     }
