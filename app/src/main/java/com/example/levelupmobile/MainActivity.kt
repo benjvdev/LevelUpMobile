@@ -13,25 +13,41 @@ import com.example.levelupmobile.ui.screens.LoginScreen
 import com.example.levelupmobile.ui.screens.RegisterScreen
 import com.example.levelupmobile.ui.theme.LevelUpMobileTheme
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.levelupmobile.session.SessionManager
 import com.example.levelupmobile.ui.screens.CartScreen
+import com.example.levelupmobile.ui.screens.ProfileScreen
 
 class MainActivity : ComponentActivity() {
+    private lateinit var sessionManager: SessionManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
+
+        sessionManager = SessionManager(this)
+
         enableEdgeToEdge()
+
         setContent {
             LevelUpMobileTheme {
 
                 // se crea el NavController
                 val navController = rememberNavController()
+
                 //obtener la ruta actual para mantener sincronizada la BottomBar
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
 
+                //decidir la pantalla inicial
+                val startDestination = if (sessionManager.isLoggedIn()) {
+                    "home"
+                } else {
+                    "login"
+                }
                 // crear el NavHost
                 NavHost(
                     navController = navController,
-                    startDestination = "login" // pantalla inicial
+                    startDestination = startDestination // pantalla inicial
                 ) {
 
                     // primera ruta: "login"
@@ -75,6 +91,21 @@ class MainActivity : ComponentActivity() {
                             }
                         )
                     }
+                    composable(route = "profile") {
+                        ProfileScreen(
+                            onNavigateBack = {
+                                navController.popBackStack()
+                            },
+                            onLogout = {
+                                navController.navigate("login") {
+                                    popUpTo(navController.graph.id) {
+                                        inclusive = true
+                                    }
+                                }
+                            }
+                        )
+                    }
+
                 }
             }
         }

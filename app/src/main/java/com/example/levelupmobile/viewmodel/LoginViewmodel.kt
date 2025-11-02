@@ -7,6 +7,7 @@ import com.example.levelupmobile.model.LoginUiState
 import com.example.levelupmobile.repository.AppDatabase
 import com.example.levelupmobile.repository.AuthRepository
 import com.example.levelupmobile.repository.AuthRepositoryImpl
+import com.example.levelupmobile.session.SessionManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,9 +20,10 @@ import kotlinx.coroutines.launch
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: AuthRepository
+    private val sessionManager: SessionManager
 
     init {
-
+        sessionManager = SessionManager(application)
         val dao = AppDatabase.getInstance(application).userDao()
         repository = AuthRepositoryImpl(dao)
     }
@@ -52,6 +54,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                 is Result.Success -> {
                     _uiState.update { it.copy(isLoading = false) }
                     _navigateToHome.emit(true) //evento de navegación
+                    sessionManager.saveLoginState(result.data.email) // guardado de estado de sesión y email
                 }
                 is Result.Error -> {
                     _uiState.update { it.copy(

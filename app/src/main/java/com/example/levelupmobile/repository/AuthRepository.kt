@@ -7,6 +7,8 @@ interface AuthRepository {
     // Usamos RegisterUiState para pasar todos los datos
     suspend fun registerUser(state: RegisterUiState): Result<Long>
     suspend fun loginUser(email: String, pass: String): Result<User>
+
+    suspend fun getUserByEmail(email: String): User?
 }
 
 
@@ -42,5 +44,8 @@ class AuthRepositoryImpl(
         } catch (e: Exception) {
             Result.Error(e)
         }
+    }
+    override suspend fun getUserByEmail(email: String): User? {
+        return dao.getUserByEmail(email)
     }
 }
