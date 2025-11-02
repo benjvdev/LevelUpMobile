@@ -88,7 +88,9 @@ class MainActivity : ComponentActivity() {
                         CartScreen(
                             onNavigateBack = {
                                 navController.popBackStack()
-                            }
+                            },
+                            navController = navController,
+                            currentRoute = currentRoute
                         )
                     }
                     composable(route = "profile") {
@@ -102,7 +104,9 @@ class MainActivity : ComponentActivity() {
                                         inclusive = true
                                     }
                                 }
-                            }
+                            },
+                            navController = navController,
+                            currentRoute = currentRoute
                         )
                     }
 

@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.levelupmobile.viewmodel.ProfileViewModel
 
 
@@ -25,7 +26,9 @@ import com.example.levelupmobile.viewmodel.ProfileViewModel
 fun ProfileScreen(
     viewModel: ProfileViewModel = viewModel(),
     onNavigateBack: () -> Unit,
-    onLogout: () -> Unit // evento para navegar al login
+    onLogout: () -> Unit, // evento para navegar al login
+    navController: NavController,
+    currentRoute: String?
 ) {
     val user by viewModel.user.collectAsStateWithLifecycle()
 
@@ -52,6 +55,12 @@ fun ProfileScreen(
                         )
                     }
                 }
+            )
+        },
+        bottomBar = {
+            HomeBottomBar(
+                navController = navController,
+                currentRoute = currentRoute
             )
         }
     ) { paddingValues ->

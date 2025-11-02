@@ -22,12 +22,15 @@ import com.example.levelupmobile.model.CartItem
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.ui.text.style.TextAlign
+import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CartScreen(
     viewModel: CartViewModel = viewModel(),
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    navController: NavController,
+    currentRoute: String?
 ) {
     val cartItems by viewModel.cartItems.collectAsStateWithLifecycle()
 
@@ -47,6 +50,12 @@ fun CartScreen(
                         )
                     }
                 }
+            )
+        },
+        bottomBar = {
+            HomeBottomBar(
+                navController = navController,
+                currentRoute = currentRoute
             )
         }
     ) { paddingValues ->
