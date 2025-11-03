@@ -28,7 +28,7 @@ class ProductRepository(private val context: Context) {
 
             } catch (e: Exception) {
                 Log.e("ProductRepository", "Error al leer products.json", e)
-                emptyList() // devuelve una lista vacia en caso de fallar
+                emptyList()
             }
         }
     }
