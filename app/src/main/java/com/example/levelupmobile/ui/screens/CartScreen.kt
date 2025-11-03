@@ -23,6 +23,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
+import java.text.DecimalFormat
+import androidx.compose.runtime.remember
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,6 +35,20 @@ fun CartScreen(
     currentRoute: String?
 ) {
     val cartItems by viewModel.cartItems.collectAsStateWithLifecycle()
+    val total = remember(cartItems) {
+        cartItems.sumOf { item ->
+            //formatear a double
+            val priceDouble = item.price
+                .replace("$", "")
+                .replace(".", "")
+                .trim()
+                .toDoubleOrNull() ?: 0.0
+            priceDouble * item.quantity
+        }
+    }
+    //volver a formatear a string
+    val formatter = DecimalFormat("'$'#,###")
+    val formattedTotal = formatter.format(total)
 
     Scaffold(
         topBar = {
@@ -89,6 +105,13 @@ fun CartScreen(
                             onQuantityChange = { newQty ->
                                 viewModel.onQuantityChanged(item, newQty)
                             }
+                        )
+                    }
+                    item {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        CheckoutFooter(
+                            formattedTotal = formattedTotal,
+                            onCheckoutClick = { } //TODO: checkout
                         )
                     }
                 }
@@ -165,6 +188,50 @@ fun QuantitySelector(
             modifier = Modifier.size(32.dp)
         ) {
             Text("+")
+        }
+    }
+}
+@Composable
+fun CheckoutFooter(
+    formattedTotal: String,
+    onCheckoutClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RectangleShape,
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(4.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Total a pagar:",
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(
+                    text = formattedTotal,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Button(
+                onClick = onCheckoutClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(36.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF008AC2)
+                )
+            ) {
+                Text("Ir a pagar")
+            }
         }
     }
 }

@@ -42,9 +42,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.filled.AddShoppingCart
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
 
 @Composable
@@ -55,6 +58,11 @@ fun HomeScreen(
     currentRoute: String?
 ) {
     val products by viewModel.products.collectAsStateWithLifecycle() //lista de productos
+    val showOverlay by viewModel.showAddedToCartOverlay.collectAsStateWithLifecycle() //estado de la notificacion
+
+    if (showOverlay) {
+        AddedToCartOverlay()
+    }
 
     Scaffold(
         topBar = {
@@ -224,7 +232,6 @@ fun HomeBottomBar(
 
     // barra de navegación
     NavigationBar {
-
         items.forEach { item ->
             NavigationBarItem(
                 //estado de selección
@@ -247,6 +254,40 @@ fun HomeBottomBar(
                 },
                 label = { Text(item.label) }
             )
+        }
+    }
+}
+@Composable
+fun AddedToCartOverlay() {
+
+    Dialog(
+        onDismissRequest = { },
+        properties = DialogProperties(
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false
+        )
+    ) {
+        Card(
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White)
+        ) {
+            Column(
+                modifier = Modifier.padding(32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.CheckCircle,
+                    contentDescription = "Éxito",
+                    modifier = Modifier.size(64.dp),
+                    tint = Color(0xFF008AC2)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "¡Producto añadido al carro!",
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
         }
     }
 }
