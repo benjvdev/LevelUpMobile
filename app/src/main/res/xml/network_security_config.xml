@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    este archivo le da permiso a la app para conectarse
+    al backend local (192.168.x.x) usando http (CLEARTEXT).
+-->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <!--reemplaza esta IP por la de tu dispositivo en caso de querer usar la app en tu telefono -->
+        <!-- <domain includeSubdomains="true"> aqui va la ip del dispositivo </domain>-->
+        <!--
+            también se añade la IP del emulador (10.0.2.2)
+            para que funcione en ambos entornos.
+        -->
+        <domain includeSubdomains="true">10.0.2.2</domain>
+    </domain-config>
+</network-security-config>

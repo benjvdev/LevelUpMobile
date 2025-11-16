@@ -4,12 +4,10 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.Room
-import com.example.levelupmobile.model.User
 import com.example.levelupmobile.model.CartItem
 
-@Database(entities = [User::class,CartItem::class], version = 2, exportSchema = false)
+@Database(entities = [CartItem::class], version = 3, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun userDao(): UserDao
     abstract fun cartDao(): CartDao
     companion object {
         // @Volatile asegura que la variable sea siempre visible para todos los hilos

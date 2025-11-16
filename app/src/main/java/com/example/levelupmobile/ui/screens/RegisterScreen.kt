@@ -28,7 +28,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.levelupmobile.model.RegisterUiState
 import com.example.levelupmobile.viewmodel.RegisterViewModel
+import androidx.compose.material.icons.filled.CalendarToday
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
     viewModel: RegisterViewModel = viewModel(),
@@ -36,7 +38,36 @@ fun RegisterScreen(
     onRegisterSuccess: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val datePickerState = rememberDatePickerState()
 
+    if (uiState.showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { viewModel.onDismissDatePicker() },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        //lee la fecha seleccionada desde el estado
+                        val selectedDateMillis = datePickerState.selectedDateMillis
+                        if (selectedDateMillis != null) {
+                            viewModel.onDateSelected(selectedDateMillis)
+                        } else {
+                            // si no seleccionó nada se cierra
+                            viewModel.onDismissDatePicker()
+                        }
+                    }
+                ) { Text("OK") }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.onDismissDatePicker() }) {
+                    Text("Cancelar")
+                }
+            }
+        ) {
+            DatePicker(
+                state = datePickerState
+            )
+        }
+    }
     LaunchedEffect(key1 = Unit) {
         viewModel.navigateToLogin.collect {
             onRegisterSuccess()
@@ -53,7 +84,8 @@ fun RegisterScreen(
             onPasswordChange = viewModel::onPasswordChanged,
             onConfirmPasswordChange = viewModel::onConfirmPasswordChanged,
             onRegisterClick = viewModel::onRegisterClicked,
-            onLoginClick = onLoginClicked
+            onLoginClick = onLoginClicked,
+            onBirthDateClick = viewModel::onBirthDateClicked,
         )
     }
 }
@@ -69,7 +101,8 @@ fun Register(
     onPasswordChange: (String) -> Unit,
     onConfirmPasswordChange: (String) -> Unit,
     onRegisterClick: () -> Unit,
-    onLoginClick: () -> Unit
+    onLoginClick: () -> Unit,
+    onBirthDateClick: () -> Unit,
 ) {
     Column(
         modifier = modifier.verticalScroll(rememberScrollState())
@@ -95,6 +128,11 @@ fun Register(
             error = uiState.addressError
         )
 
+        BirthDateField(
+            birthDate = uiState.birthDate,
+            error = uiState.birthDateError,
+            onClick = onBirthDateClick
+        )
         EmailField(
             email = uiState.email,
             onValueChange = onEmailChange,
@@ -313,4 +351,43 @@ fun PasswordField(
             }
         }
     )
+}
+@Composable
+fun BirthDateField(
+    birthDate: String,
+    error: String?,
+    onClick: () -> Unit
+) {
+    Box(modifier = Modifier.clickable { onClick() }) {
+        TextField(
+            value = birthDate,
+            onValueChange = {},
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = { Text(text = "Fecha de Nacimiento") },
+            trailingIcon = {
+                Icon(Icons.Default.CalendarToday, "Abrir calendario")
+            },
+            readOnly = true, //evita que el usuario escriba
+            enabled = false, //deshabilitado para que el clic vaya al Box
+
+            //colores para que parezca habilitado
+            colors = TextFieldDefaults.colors(
+                disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                disabledIndicatorColor = Color.Transparent
+            ),
+            isError = (error != null),
+            supportingText = {
+                if (error != null) {
+                    Text(
+                        text = error,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Start
+                    )
+                }
+            }
+        )
+    }
 }

@@ -24,7 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import com.example.levelupmobile.model.Product
+import com.example.levelupmobile.remote.Product
 import com.example.levelupmobile.viewmodel.HomeViewModel
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -49,6 +49,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
+import java.text.DecimalFormat
 
 @Composable
 fun HomeScreen(
@@ -103,6 +104,8 @@ fun ProductCard(
     product: Product,
     onAddToCartClick: () -> Unit
 ) {
+    val formatter = DecimalFormat("'$'#,###")
+    val formattedPrice = formatter.format(product.price)
     Box {
         Card(
             modifier = Modifier,
@@ -133,7 +136,7 @@ fun ProductCard(
                         modifier = Modifier.weight(1f)
                     )
                     Text(
-                        text = product.price,
+                        text = formattedPrice,
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(top = 8.dp)

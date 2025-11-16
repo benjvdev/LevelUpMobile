@@ -37,13 +37,7 @@ fun CartScreen(
     val cartItems by viewModel.cartItems.collectAsStateWithLifecycle()
     val total = remember(cartItems) {
         cartItems.sumOf { item ->
-            //formatear a double
-            val priceDouble = item.price
-                .replace("$", "")
-                .replace(".", "")
-                .trim()
-                .toDoubleOrNull() ?: 0.0
-            priceDouble * item.quantity
+            item.price * item.quantity
         }
     }
     //volver a formatear a string
@@ -126,6 +120,9 @@ fun CartItemRow(
     onDelete: () -> Unit,
     onQuantityChange: (Int) -> Unit
 ) {
+    val formatter = DecimalFormat("'$'#,###")
+    val formattedPrice = formatter.format(item.price)
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RectangleShape,
@@ -150,7 +147,7 @@ fun CartItemRow(
                     .padding(horizontal = 16.dp)
             ) {
                 Text(item.name, fontWeight = FontWeight.Bold)
-                Text(item.price, modifier = Modifier.padding(top = 4.dp))
+                Text(formattedPrice, modifier = Modifier.padding(top = 4.dp))
             }
 
             QuantitySelector(

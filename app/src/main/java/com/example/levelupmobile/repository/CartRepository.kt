@@ -1,17 +1,17 @@
 package com.example.levelupmobile.repository
 
 import com.example.levelupmobile.model.CartItem
-import com.example.levelupmobile.model.Product
+import com.example.levelupmobile.remote.Product
 import kotlinx.coroutines.flow.Flow
 
 class CartRepository(private val cartDao: CartDao) {
 
     suspend fun addProductToCart(product: Product) {
-        val existingItem = cartDao.getItemByCode(product.code)
+        val existingItem = cartDao.getItemById(product.id)
 
         if (existingItem == null) {
             val newItem = CartItem(
-                code = product.code,
+                id = product.id,
                 name = product.name,
                 image = product.image,
                 price = product.price,

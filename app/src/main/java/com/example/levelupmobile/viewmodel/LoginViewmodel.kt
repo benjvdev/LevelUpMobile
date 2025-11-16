@@ -1,13 +1,13 @@
 package com.example.levelupmobile.viewmodel
 
+import SessionManager
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.levelupmobile.model.LoginUiState
-import com.example.levelupmobile.repository.AppDatabase
+import com.example.levelupmobile.remote.RetrofitClient
 import com.example.levelupmobile.repository.AuthRepository
 import com.example.levelupmobile.repository.AuthRepositoryImpl
-import com.example.levelupmobile.session.SessionManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,9 +23,9 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     private val sessionManager: SessionManager
 
     init {
+        val apiService = RetrofitClient.getInstance(application)
+        repository = AuthRepositoryImpl(apiService)
         sessionManager = SessionManager(application)
-        val dao = AppDatabase.getInstance(application).userDao()
-        repository = AuthRepositoryImpl(dao)
     }
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
@@ -52,9 +52,13 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
             when (result) {
                 is Result.Success -> {
+                    val loginResponse = result.data
+                    sessionManager.saveLoginSession(
+                        token = loginResponse.token,
+                        email = loginResponse.user.email
+                    )
                     _uiState.update { it.copy(isLoading = false) }
-                    _navigateToHome.emit(true) //evento de navegación
-                    sessionManager.saveLoginState(result.data.email) // guardado de estado de sesión y email
+                    _navigateToHome.emit(true)
                 }
                 is Result.Error -> {
                     _uiState.update { it.copy(

@@ -16,6 +16,10 @@ import com.example.levelupmobile.utils.Result
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import android.util.Patterns
+import com.example.levelupmobile.remote.RetrofitClient
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 class RegisterViewModel(application: Application): AndroidViewModel(application) {
     private val repository: AuthRepository
@@ -25,8 +29,8 @@ class RegisterViewModel(application: Application): AndroidViewModel(application)
     val navigateToLogin = _navigateToLogin.asSharedFlow()
 
     init {
-        val dao = AppDatabase.getInstance(application).userDao()
-        repository = AuthRepositoryImpl(dao)
+        val apiService = RetrofitClient.getInstance(application)
+        repository = AuthRepositoryImpl(apiService)
     }
     fun onFirstNameChanged(firstName: String) {
         _uiState.update { it.copy(firstName = firstName) }
@@ -60,7 +64,8 @@ class RegisterViewModel(application: Application): AndroidViewModel(application)
             emailError = null,
             passError = null,
             confirmPassError = null,
-            registerError = null
+            registerError = null,
+            birthDateError = null
         )}
         if (!validateFields()) {
             return
@@ -81,6 +86,36 @@ class RegisterViewModel(application: Application): AndroidViewModel(application)
                     )}
                 }
             }
+        }
+    }
+
+    //se llama cuando el usuario hace clic en el campo de texto de fecha
+    fun onBirthDateClicked() {
+        _uiState.update { it.copy(showDatePicker = true) }
+    }
+
+    //se llama cuando el usuario cierra el DatePicker (ej. tocando fuera)
+    fun onDismissDatePicker() {
+        _uiState.update { it.copy(showDatePicker = false) }
+    }
+
+
+    //se llama cuando el usuario selecciona una fecha en el calendario
+    fun onDateSelected(selectedDateMillis: Long) {
+        //convertir los milisegundos (Long) a un objeto LocalDate
+        val localDate = Instant.ofEpochMilli(selectedDateMillis)
+            .atZone(ZoneId.of("UTC"))
+            .toLocalDate()
+
+        // formatearla a un String legible (DD/MM/YYYY)
+        val formattedDate = localDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+
+        //actualizar el UiState
+        _uiState.update {
+            it.copy(
+                birthDate = formattedDate, // guarda el string formateado
+                showDatePicker = false // cierra el dialog
+            )
         }
     }
     private fun validateFields(): Boolean {
@@ -112,6 +147,10 @@ class RegisterViewModel(application: Application): AndroidViewModel(application)
 
         if (state.pass != state.confirmPass) {
             _uiState.update { it.copy(confirmPassError = "Las contraseñas no coinciden") }
+            isValid = false
+        }
+        if (state.birthDate.isBlank()) { //
+            _uiState.update { it.copy(birthDateError = "La fecha es obligatoria") }
             isValid = false
         }
         return isValid

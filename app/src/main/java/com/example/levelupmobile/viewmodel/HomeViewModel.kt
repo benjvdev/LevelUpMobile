@@ -3,7 +3,8 @@ package com.example.levelupmobile.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.levelupmobile.model.Product
+import com.example.levelupmobile.remote.Product
+import com.example.levelupmobile.remote.RetrofitClient
 import com.example.levelupmobile.repository.AppDatabase
 import com.example.levelupmobile.repository.ProductRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,9 +15,7 @@ import com.example.levelupmobile.repository.CartRepository
 import kotlinx.coroutines.delay
 
 class HomeViewModel(application: Application) : AndroidViewModel(application) {
-
-    //instancia del repositorio
-    private val repository = ProductRepository(application)
+    private val repository: ProductRepository
     private val cartRepository: CartRepository
 
     //estado para guardar la lista de productos
@@ -29,6 +28,9 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     //bloque init para cargar los productos apenas se cree el ViewModel
     init {
+        val apiService = RetrofitClient.getInstance(application)
+        repository = ProductRepository(apiService)
+
         val cartDao = AppDatabase.getInstance(application).cartDao()
         cartRepository = CartRepository(cartDao)
         loadProducts()

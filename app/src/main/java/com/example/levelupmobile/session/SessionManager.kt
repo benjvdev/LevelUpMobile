@@ -1,43 +1,44 @@
-package com.example.levelupmobile.session
-
 import android.content.Context
 import android.content.SharedPreferences
 
 class SessionManager(context: Context) {
 
-    // archivo de preferencias
     private var prefs: SharedPreferences =
         context.getSharedPreferences("MyAppSession", Context.MODE_PRIVATE)
 
     companion object {
-        const val USER_LOGGED_IN = "USER_LOGGED_IN"
+        const val USER_TOKEN = "USER_TOKEN"
         const val USER_EMAIL = "USER_EMAIL"
     }
 
-
-    // se llama cuando el usuario inicia sesión exitosamente
-    fun saveLoginState(email: String) {
+    //Se llama en el Login
+    fun saveLoginSession(token: String, email: String) {
         val editor = prefs.edit()
-        editor.putBoolean(USER_LOGGED_IN, true)
+        editor.putString(USER_TOKEN, token)
         editor.putString(USER_EMAIL, email)
         editor.apply()
     }
 
-    // se llama para cerrar sesión
+    //se llama en el logout
     fun clearLoginState() {
         val editor = prefs.edit()
-        editor.putBoolean(USER_LOGGED_IN, false)
-        editor.putString(USER_EMAIL, null)
+        editor.remove(USER_TOKEN)
+        editor.remove(USER_EMAIL)
         editor.apply()
     }
 
-
-    //se llama desde MainActivity para decidir la pantalla inicial
+    //se usa en MainActivity para saber si mostrar Login o Home
     fun isLoggedIn(): Boolean {
-        return prefs.getBoolean(USER_LOGGED_IN, false)
+        // Si hay un token guardado, el usuario está logueado
+        return prefs.getString(USER_TOKEN, null) != null
     }
-    // obtener el email del usuario logueado
+
     fun getLoggedInEmail(): String? {
         return prefs.getString(USER_EMAIL, null)
+    }
+
+    //función para que el interceptor lea el token
+    fun getToken(): String? {
+        return prefs.getString(USER_TOKEN, null)
     }
 }

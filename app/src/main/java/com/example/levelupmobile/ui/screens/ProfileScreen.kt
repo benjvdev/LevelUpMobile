@@ -19,7 +19,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.levelupmobile.viewmodel.ProfileViewModel
-
+import com.example.levelupmobile.remote.User
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -74,9 +74,9 @@ fun ProfileScreen(
             // mostramos los datos cuando el user sea distinto de null
             if (user != null) {
                 Spacer(modifier = Modifier.height(16.dp))
-                ProfileInfoRow("Nombres", user!!.firstName)
-                ProfileInfoRow("Apellidos", user!!.lastName)
-                ProfileInfoRow("Dirección", user!!.address)
+                ProfileInfoRow("Nombres", user!!.nombres)
+                ProfileInfoRow("Apellidos", user!!.apellidos)
+                ProfileInfoRow("Dirección", user!!.direccion)
                 ProfileInfoRow("Email", user!!.email)
                 ProfileInfoRow("Contraseña", "**********")
 

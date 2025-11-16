@@ -1,5 +1,6 @@
 package com.example.levelupmobile
 
+import SessionManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -13,7 +14,6 @@ import com.example.levelupmobile.ui.screens.LoginScreen
 import com.example.levelupmobile.ui.screens.RegisterScreen
 import com.example.levelupmobile.ui.theme.LevelUpMobileTheme
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.example.levelupmobile.session.SessionManager
 import com.example.levelupmobile.ui.screens.CartScreen
 import com.example.levelupmobile.ui.screens.ForgotPasswordScreen
 import com.example.levelupmobile.ui.screens.ProfileScreen

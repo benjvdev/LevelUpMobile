@@ -13,6 +13,9 @@ data class RegisterUiState(
     val passError: String? = null,
     val confirmPass: String = "",
     val confirmPassError: String? = null,
+    val birthDate: String = "",
+    val birthDateError: String? = null,
+    val showDatePicker: Boolean = false,
     val isLoading: Boolean = false,
     val registerError: String? = null
     )

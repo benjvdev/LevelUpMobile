@@ -1,20 +1,19 @@
 package com.example.levelupmobile.viewmodel
 
+import SessionManager
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.levelupmobile.model.User
-import com.example.levelupmobile.repository.AppDatabase
+import com.example.levelupmobile.remote.User
 import com.example.levelupmobile.repository.AuthRepository
 import com.example.levelupmobile.repository.AuthRepositoryImpl
-import com.example.levelupmobile.session.SessionManager
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-
+import com.example.levelupmobile.remote.RetrofitClient
 
 class ProfileViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -31,8 +30,9 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
 
     init {
         sessionManager = SessionManager(application)
-        val dao = AppDatabase.getInstance(application).userDao()
-        repository = AuthRepositoryImpl(dao)
+
+        val apiService = RetrofitClient.getInstance(application)
+        repository = AuthRepositoryImpl(apiService)
 
         // cargar los datos del usuario al iniciar
         loadUserData()
@@ -40,12 +40,15 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
 
     private fun loadUserData() {
         viewModelScope.launch {
-            val email = sessionManager.getLoggedInEmail()
-            if (email != null) {
-                // Busca en la base de datos
-                _user.value = repository.getUserByEmail(email)
-            }else {
-                logout() // si no hay un email forzamos logout
+            //llama a la función del repositorio
+            val profileData = repository.getProfile()
+
+            if (profileData != null) {
+                // si tenemos datos, los mostramos en la UI
+                _user.value = profileData
+            } else {
+                // si getProfile devuelve null (token inválido) forzamos el cierre de sesión
+                logout()
             }
         }
     }
