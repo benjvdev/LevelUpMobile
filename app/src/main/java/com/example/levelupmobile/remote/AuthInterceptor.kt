@@ -1,6 +1,6 @@
 package com.example.levelupmobile.remote
 
-import SessionManager
+import com.example.levelupmobile.session.SessionManager
 import android.content.Context
 import okhttp3.Interceptor
 import okhttp3.Response

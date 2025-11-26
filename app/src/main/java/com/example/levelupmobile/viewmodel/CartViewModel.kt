@@ -1,3 +1,5 @@
+package com.example.levelupmobile.viewmodel
+
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,14 +11,25 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class CartViewModel(application: Application) : AndroidViewModel(application) {
+class CartViewModel @JvmOverloads constructor(
+    application: Application,
+    // permitimos inyectar el repositorio para los tests
+    cartRepository: CartRepository? = null
+) : AndroidViewModel(application) {
+
     private val repository: CartRepository
     val cartItems: StateFlow<List<CartItem>>
 
     init {
-        val cartDao = AppDatabase.getInstance(application).cartDao()
-        repository = CartRepository(cartDao)
+        // si nos pasan un repositorio (test) lo usamos, si no, creamos el real con la base de datos
+        if (cartRepository != null) {
+            repository = cartRepository
+        } else {
+            val cartDao = AppDatabase.getInstance(application).cartDao()
+            repository = CartRepository(cartDao)
+        }
 
+        // convertimos el flujo de la base de datos en un estado para la ui
         cartItems = repository.getCartItems()
             .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     }
@@ -32,6 +45,7 @@ class CartViewModel(application: Application) : AndroidViewModel(application) {
             if (newQuantity > 0) {
                 repository.updateQuantity(item, newQuantity)
             } else {
+                // si la cantidad es 0 o menos, borramos el item
                 repository.deleteItem(item)
             }
         }

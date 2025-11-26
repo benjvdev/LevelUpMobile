@@ -1,6 +1,6 @@
 package com.example.levelupmobile.viewmodel
 
-import SessionManager
+import com.example.levelupmobile.session.SessionManager
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,10 +15,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import com.example.levelupmobile.remote.RetrofitClient
 
-class ProfileViewModel(application: Application) : AndroidViewModel(application) {
+class ProfileViewModel @JvmOverloads constructor(
+    application: Application,
+    authRepository: AuthRepository? = null,
+    sessionManager: SessionManager? = null
+) : AndroidViewModel(application) {
 
     private val repository: AuthRepository
-    private val sessionManager: SessionManager
+    private val sessionMgr: SessionManager
 
     // estado para guardar los datos del usuario
     private val _user = MutableStateFlow<User?>(null)
@@ -29,10 +33,10 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     val navigateToLogin = _navigateToLogin.asSharedFlow()
 
     init {
-        sessionManager = SessionManager(application)
+        sessionMgr = sessionManager ?: SessionManager(application)
 
         val apiService = RetrofitClient.getInstance(application)
-        repository = AuthRepositoryImpl(apiService)
+        repository = authRepository ?: AuthRepositoryImpl(apiService)
 
         // cargar los datos del usuario al iniciar
         loadUserData()
@@ -56,7 +60,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     // se llama con el boton cerrar sesión
     fun logout() {
         viewModelScope.launch {
-            sessionManager.clearLoginState()
+            sessionMgr.clearLoginState()
             _navigateToLogin.emit(true)
         }
     }

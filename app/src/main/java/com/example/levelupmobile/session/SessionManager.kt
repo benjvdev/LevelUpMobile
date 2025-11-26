@@ -1,8 +1,9 @@
+package com.example.levelupmobile.session
+
 import android.content.Context
 import android.content.SharedPreferences
 
 class SessionManager(context: Context) {
-
     private var prefs: SharedPreferences =
         context.getSharedPreferences("MyAppSession", Context.MODE_PRIVATE)
 

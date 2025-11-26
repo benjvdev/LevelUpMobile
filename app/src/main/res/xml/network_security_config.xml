@@ -6,11 +6,12 @@
 <network-security-config>
     <domain-config cleartextTrafficPermitted="true">
         <!--reemplaza esta IP por la de tu dispositivo en caso de querer usar la app en tu telefono -->
-        <!-- <domain includeSubdomains="true"> aqui va la ip del dispositivo </domain>-->
+
         <!--
             también se añade la IP del emulador (10.0.2.2)
             para que funcione en ambos entornos.
         -->
         <domain includeSubdomains="true">10.0.2.2</domain>
+        <!-- <domain includeSubdomains="true"> aqui va la ip del dispositivo </domain>-->
     </domain-config>
 </network-security-config>

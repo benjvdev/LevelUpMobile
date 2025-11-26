@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.levelupmobile.model.RegisterUiState
-import com.example.levelupmobile.repository.AppDatabase
 import com.example.levelupmobile.repository.AuthRepository
 import com.example.levelupmobile.repository.AuthRepositoryImpl
 import kotlinx.coroutines.flow.MutableStateFlow

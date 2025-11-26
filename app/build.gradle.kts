@@ -43,11 +43,16 @@ android {
 }
 
 dependencies {
+    //testing
+    testImplementation("io.kotest:kotest-runner-junit5:5.8.0")
+    testImplementation("io.kotest:kotest-assertions-core:5.8.0")
+    testImplementation("io.mockk:mockk:1.13.10")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+    testImplementation("app.cash.turbine:turbine:1.0.0")
+    testImplementation("io.kotest:kotest-runner-junit5:5.8.0")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    //para manejar tambien texto plano
     implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
-    //para ver los logs de red en Logcat
     implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
 
     implementation("io.coil-kt:coil-compose:2.6.0")
@@ -75,4 +80,7 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+}
+tasks.withType<Test> {
+    useJUnitPlatform()
 }

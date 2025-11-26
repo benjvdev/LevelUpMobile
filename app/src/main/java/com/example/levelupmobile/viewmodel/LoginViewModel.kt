@@ -1,6 +1,6 @@
 package com.example.levelupmobile.viewmodel
 
-import SessionManager
+import com.example.levelupmobile.session.SessionManager
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,15 +17,19 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
-class LoginViewModel(application: Application) : AndroidViewModel(application) {
+class LoginViewModel @JvmOverloads constructor(
+    application: Application,
+    authRepository: AuthRepository? = null,
+    sessionManager: SessionManager? = null
+) : AndroidViewModel(application) {
 
     private val repository: AuthRepository
-    private val sessionManager: SessionManager
+    private val sessionMgr: SessionManager
 
     init {
         val apiService = RetrofitClient.getInstance(application)
-        repository = AuthRepositoryImpl(apiService)
-        sessionManager = SessionManager(application)
+        repository = authRepository ?: AuthRepositoryImpl(apiService)
+        sessionMgr = sessionManager ?: SessionManager(application)
     }
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
@@ -53,7 +57,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             when (result) {
                 is Result.Success -> {
                     val loginResponse = result.data
-                    sessionManager.saveLoginSession(
+                    sessionMgr.saveLoginSession(
                         token = loginResponse.token,
                         email = loginResponse.user.email
                     )

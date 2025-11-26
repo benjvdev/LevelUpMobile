@@ -3,18 +3,23 @@ package com.example.levelupmobile.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.levelupmobile.remote.Product
 import com.example.levelupmobile.remote.RetrofitClient
+import com.example.levelupmobile.remote.Product
 import com.example.levelupmobile.repository.AppDatabase
+import com.example.levelupmobile.repository.CartRepository
 import com.example.levelupmobile.repository.ProductRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import com.example.levelupmobile.repository.CartRepository
-import kotlinx.coroutines.delay
 
-class HomeViewModel(application: Application) : AndroidViewModel(application) {
+class HomeViewModel @JvmOverloads constructor(
+    application: Application,
+    productRepo: ProductRepository? = null,
+    cartRepo: CartRepository? = null
+) : AndroidViewModel(application) {
+
     private val repository: ProductRepository
     private val cartRepository: CartRepository
 
@@ -26,13 +31,20 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private val _showAddedToCartOverlay = MutableStateFlow(false)
     val showAddedToCartOverlay = _showAddedToCartOverlay.asStateFlow()
 
-    //bloque init para cargar los productos apenas se cree el ViewModel
+    //bloque init para cargar los productos apenas se cree el viewmodel
     init {
         val apiService = RetrofitClient.getInstance(application)
-        repository = ProductRepository(apiService)
 
-        val cartDao = AppDatabase.getInstance(application).cartDao()
-        cartRepository = CartRepository(cartDao)
+        //usamos el repositorio de prueba si existe o creamos el real
+        repository = productRepo ?: ProductRepository(apiService)
+
+        if (cartRepo != null) {
+            cartRepository = cartRepo
+        } else {
+            val cartDao = AppDatabase.getInstance(application).cartDao()
+            cartRepository = CartRepository(cartDao)
+        }
+
         loadProducts()
     }
 
@@ -41,6 +53,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             _products.value = repository.getProducts()
         }
     }
+
     fun onAddToCartClicked(product: Product) {
         viewModelScope.launch {
             cartRepository.addProductToCart(product)
@@ -49,7 +62,6 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             _showAddedToCartOverlay.value = true
             delay(1200L)
             _showAddedToCartOverlay.value = false
-
         }
     }
 }
