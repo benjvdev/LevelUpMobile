@@ -1,17 +1,17 @@
 package com.example.levelupmobile.remote
 
 import android.content.Context
+import com.example.levelupmobile.BuildConfig
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import com.google.gson.GsonBuilder
 import retrofit2.converter.scalars.ScalarsConverterFactory
 
 object RetrofitClient {
 
     // ip para apuntar al localhost(xampp) desde el emulador o desde la ip del dispositivo
-    private const val BASE_URL = "http://10.0.2.2:8080/"
+    private const val BASE_URL = "http://192.168.1.2:8080/"
 
     //instancia 'lazy' para que solo se cree una vez
     @Volatile
@@ -26,7 +26,11 @@ object RetrofitClient {
     private fun buildApiService(context: Context): ApiService {
         //para ver llamadas en Logcat
         val loggingInterceptor = HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
+            level = if (BuildConfig.DEBUG) {
+                HttpLoggingInterceptor.Level.BODY
+            } else {
+                HttpLoggingInterceptor.Level.NONE
+            }
         }
 
         //interceptor de autenticación

@@ -12,7 +12,7 @@ class SessionManager(context: Context) {
         const val USER_EMAIL = "USER_EMAIL"
     }
 
-    //Se llama en el Login
+    //se llama en el Login
     fun saveLoginSession(token: String, email: String) {
         val editor = prefs.edit()
         editor.putString(USER_TOKEN, token)
@@ -30,7 +30,7 @@ class SessionManager(context: Context) {
 
     //se usa en MainActivity para saber si mostrar Login o Home
     fun isLoggedIn(): Boolean {
-        // Si hay un token guardado, el usuario está logueado
+        // si hay un token guardado, el usuario está logueado
         return prefs.getString(USER_TOKEN, null) != null
     }
 

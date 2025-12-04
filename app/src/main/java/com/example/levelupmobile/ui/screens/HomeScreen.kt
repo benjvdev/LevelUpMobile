@@ -3,52 +3,37 @@ package com.example.levelupmobile.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.AddShoppingCart
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.levelupmobile.remote.Product
 import com.example.levelupmobile.viewmodel.HomeViewModel
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.runtime.getValue
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.filled.AddShoppingCart
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
-import androidx.navigation.NavController
 import java.text.DecimalFormat
 
 @Composable
@@ -58,8 +43,8 @@ fun HomeScreen(
     navController: NavController,
     currentRoute: String?
 ) {
-    val products by viewModel.products.collectAsStateWithLifecycle() //lista de productos
-    val showOverlay by viewModel.showAddedToCartOverlay.collectAsStateWithLifecycle() //estado de la notificacion
+    val products by viewModel.products.collectAsStateWithLifecycle()
+    val showOverlay by viewModel.showAddedToCartOverlay.collectAsStateWithLifecycle()
 
     if (showOverlay) {
         AddedToCartOverlay()
@@ -68,7 +53,6 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             HomeTopBar(
-                onMenuClick = {},
                 onSearchClick = onNavigateToSearch
             )
         },
@@ -81,12 +65,10 @@ fun HomeScreen(
     ) { paddingValues ->
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
-
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
             contentPadding = PaddingValues(16.dp),
-
             verticalArrangement = Arrangement.spacedBy(6.dp),
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
@@ -99,6 +81,7 @@ fun HomeScreen(
         }
     }
 }
+
 @Composable
 fun ProductCard(
     product: Product,
@@ -125,13 +108,15 @@ fun ProductCard(
                     contentScale = ContentScale.Fit
                 )
                 Column(
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier
+                        .padding(16.dp)
                         .height(IntrinsicSize.Min)
                 ) {
                     Text(
                         text = product.name,
                         style = MaterialTheme.typography.titleMedium,
-                        maxLines = 1,
+                        maxLines = 2,
+                        minLines = 2,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f)
                     )
@@ -162,10 +147,10 @@ fun ProductCard(
         }
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeTopBar(
-    onMenuClick: () -> Unit,
     onSearchClick: () -> Unit
 ) {
     TopAppBar(
@@ -174,14 +159,6 @@ fun HomeTopBar(
             titleContentColor = Color.White,
             navigationIconContentColor = Color.White
         ),
-        navigationIcon = {
-            IconButton(onClick = onMenuClick) {
-                Icon(
-                    imageVector = Icons.Default.Menu,
-                    contentDescription = "Abrir menú"
-                )
-            }
-        },
         title = {
             FakeSearchBar(onClick = onSearchClick)
         }
@@ -190,7 +167,8 @@ fun HomeTopBar(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun FakeSearchBar(
+fun FakeSearchBar(
+    query: String = "",
     onClick: () -> Unit
 ) {
     Card(
@@ -212,20 +190,33 @@ private fun FakeSearchBar(
                 tint = Color.Gray
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "Busca los mejores productos para gamers :)",
-                color = Color.Gray,
-                fontSize = 14.sp
-            )
+
+            if (query.isNotEmpty()) {
+                Text(
+                    text = query,
+                    color = Color.Black,
+                    fontSize = 14.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            } else {
+                Text(
+                    text = "Busca los mejores productos para gamers :)",
+                    color = Color.Gray,
+                    fontSize = 14.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
     }
 }
+
 @Composable
 fun HomeBottomBar(
     navController: NavController,
     currentRoute: String?
 ) {
-    // lista de los items de navegación
     val items = listOf(
         BottomNavItem("Home", "home", Icons.Default.Home),
         BottomNavItem("Buscar", "search", Icons.Default.Search),
@@ -233,15 +224,12 @@ fun HomeBottomBar(
         BottomNavItem("Perfil", "profile", Icons.Default.Person)
     )
 
-    // barra de navegación
     NavigationBar {
         items.forEach { item ->
             NavigationBarItem(
-                //estado de selección
                 selected = (currentRoute == item.route),
                 onClick = {
                     navController.navigate(item.route) {
-                        //para no apilar repetidos
                         launchSingleTop = true
                         restoreState = true
                         popUpTo(navController.graph.startDestinationId) {
@@ -260,9 +248,9 @@ fun HomeBottomBar(
         }
     }
 }
+
 @Composable
 fun AddedToCartOverlay() {
-
     Dialog(
         onDismissRequest = { },
         properties = DialogProperties(
@@ -294,6 +282,7 @@ fun AddedToCartOverlay() {
         }
     }
 }
+
 private data class BottomNavItem(
     val label: String,
     val route: String,

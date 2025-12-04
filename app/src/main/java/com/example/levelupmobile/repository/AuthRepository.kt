@@ -41,20 +41,20 @@ class AuthRepositoryImpl(
         )
 
         return try {
-            // 1. Llama a 'register'. Si es 200 OK, devuelve el String y sigue.
+            //llama a 'register' si es 200 OK, devuelve el string y sigue
             val responseBody = apiService.register(request)
             Log.d("AuthRepositoryImpl", "Registro exitoso: $responseBody")
-            Result.Success(1L) // Éxito
+            Result.Success(1L) //exito
 
         } catch (e: Exception) {
-            // 2. Si es 400, 500, etc., será una HttpException
+            //si es 400, 500, etc, será una HttpException
             if (e is HttpException) {
-                // Leemos el mensaje de error de Spring (ej. "El email ya está en uso")
+                //leemos el mensaje de error de Spring
                 val errorMsg = e.response()?.errorBody()?.string() ?: "Error de registro"
                 Log.e("AuthRepositoryImpl", "Error HTTP en Registro: $errorMsg")
                 Result.Error(Exception(errorMsg))
             } else {
-                // Error de red (sin conexión, CLEARTEXT, etc.)
+                // error de red (sin conexión, CLEARTEXT, etc)
                 Log.e("AuthRepositoryImpl", "Error de RED en Registro", e)
                 Result.Error(Exception("Error de red: ${e.message}"))
             }

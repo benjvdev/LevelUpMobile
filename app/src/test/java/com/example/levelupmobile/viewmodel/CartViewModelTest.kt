@@ -6,7 +6,6 @@ import com.example.levelupmobile.model.CartItem
 import com.example.levelupmobile.repository.CartRepository
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
@@ -48,7 +47,7 @@ class CartViewModelTest : BehaviorSpec({
 
         When("Se inicia el ViewModel") {
             // simulamos que el repositorio devuelve una lista con un item
-            // es importante configurar esto ANTES de crear el viewmodel porque el init lo llama de inmediato
+            // es importante configurar esto antes de crear el viewmodel porque el init lo llama de inmediato
             every { repository.getCartItems() } returns flowOf(listOf(mockItem))
 
             val viewModel = CartViewModel(application, repository)
